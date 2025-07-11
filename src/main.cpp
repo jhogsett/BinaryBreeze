@@ -50,17 +50,6 @@ void sendMIDIDirectly(uint8_t cmd, uint8_t data1, uint8_t data2);
 // Direct MIDI sending function (bypasses library)
 // Parameters: cmd, note, velocity (corrected order)
 void sendMIDIDirectly(uint8_t cmd, uint8_t note, uint8_t velocity) {
-  // Debug output
-  Serial.print("MIDI: 0x");
-  Serial.print(cmd, HEX);
-  Serial.print(" Note:");
-  Serial.print(note);
-  if((cmd & 0xF0) != 0xC0 && (cmd & 0xF0) != 0xD0) {
-    Serial.print(" Vel:");
-    Serial.print(velocity);
-  }
-  Serial.println();
-  
   // Wait for DREQ
   while(!digitalRead(VS1053_DREQ));
   
@@ -84,226 +73,75 @@ void sendMIDIDirectly(uint8_t cmd, uint8_t note, uint8_t velocity) {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("VS1053 MIDI Bell Test Starting...");
+  Serial.println("VS1053 MIDI Starting...");
   
-  // Test pin setup first
-  Serial.println("Setting up pins...");
+  // Pin setup
   pinMode(VS1053_CS, OUTPUT);
   pinMode(VS1053_DCS, OUTPUT);
   pinMode(VS1053_DREQ, INPUT);
   pinMode(VS1053_RESET, OUTPUT);
   
-  // Set initial pin states
   digitalWrite(VS1053_CS, HIGH);
   digitalWrite(VS1053_DCS, HIGH);
   digitalWrite(VS1053_RESET, HIGH);
   
-  Serial.println("Pin setup complete");
-  Serial.print("DREQ pin state: ");
-  Serial.println(digitalRead(VS1053_DREQ) ? "HIGH" : "LOW");
-  
   // Initialize SPI
   SPI.begin();
-  Serial.println("SPI initialized");
   
-  // Test reset sequence
-  Serial.println("Testing reset sequence...");
+  // Reset VS1053
   digitalWrite(VS1053_RESET, LOW);
   delay(10);
   digitalWrite(VS1053_RESET, HIGH);
   delay(500);
   
-  Serial.print("DREQ after reset: ");
-  Serial.println(digitalRead(VS1053_DREQ) ? "HIGH" : "LOW");
+  // Wait for DREQ
+  while(!digitalRead(VS1053_DREQ));
   
-  // Wait for DREQ to go high (indicates VS1053 is ready)
-  Serial.println("Waiting for DREQ to go HIGH...");
-  int timeout = 0;
-  while(!digitalRead(VS1053_DREQ) && timeout < 1000) {
-    delay(10);
-    timeout++;
-  }
-  
-  if(digitalRead(VS1053_DREQ)) {
-    Serial.println("DREQ is HIGH - VS1053 should be ready");
-  } else {
-    Serial.println("DREQ never went HIGH - possible power or connection issue");
-    Serial.println("Check:");
-    Serial.println("1. 5V power connection to VS1053");
-    Serial.println("2. Ground connections");
-    Serial.println("3. DREQ wire to pin 2");
-    while(1) {
-      delay(1000);
-      Serial.println("Halted - fix hardware issues");
-    }
-  }
-  
-  // Manual SPI test - try to read MODE register
-  Serial.println("Testing manual SPI communication...");
-  
-  // Select command interface
+  // Set volume only
   digitalWrite(VS1053_CS, LOW);
-  
-  // Send read command for MODE register (address 0x00)
-  SPI.transfer(0x03); // Read command
-  SPI.transfer(0x00); // MODE register address
-  uint16_t mode = SPI.transfer(0x00) << 8; // High byte
-  mode |= SPI.transfer(0x00); // Low byte
-  
-  // Deselect
+  SPI.transfer(0x02);
+  SPI.transfer(0x0B);
+  SPI.transfer(0x20);
+  SPI.transfer(0x20);
   digitalWrite(VS1053_CS, HIGH);
   
-  Serial.print("MODE register value: 0x");
-  Serial.println(mode, HEX);
+  delay(100);
   
-  if(mode == 0x0000 || mode == 0xFFFF) {
-    Serial.println("Invalid MODE register value - SPI communication failed");
-    Serial.println("Check SPI wiring:");
-    Serial.println("  MISO -> Pin 12");
-    Serial.println("  MOSI -> Pin 11"); 
-    Serial.println("  SCK -> Pin 13");
-    Serial.println("  XCS -> Pin 6");
-    while(1) {
-      delay(1000);
-      Serial.println("Halted - fix SPI wiring");
-    }
-  } else {
-    Serial.println("SPI communication successful!");
-    Serial.println("Bypassing library initialization and doing manual setup...");
-    
-    // Manual VS1053 setup since the library hangs
-    Serial.println("Setting up VS1053 manually...");
-    
-    // Wait for DREQ
-    while(!digitalRead(VS1053_DREQ));
-    
-    // Set volume manually by writing to SCI_VOL register (0x0B)
-    digitalWrite(VS1053_CS, LOW);
-    SPI.transfer(0x02); // Write command
-    SPI.transfer(0x0B); // VOL register
-    SPI.transfer(0x20); // Left volume (0x20 = moderate volume - your original working setting)
-    SPI.transfer(0x20); // Right volume (0x20 = moderate volume - your original working setting)
-    digitalWrite(VS1053_CS, HIGH);
-    
-    Serial.println("Volume set");
-    
-    // Try to load MIDI patches manually
-    Serial.println("Loading MIDI patches...");
-    
-    // Simple approach - just try to send MIDI commands directly
-    // Set up for real-time MIDI mode
-    while(!digitalRead(VS1053_DREQ));
-    
-    Serial.println("Setting MODE register for MIDI...");
-    digitalWrite(VS1053_CS, LOW);
-    SPI.transfer(0x02); // Write command
-    SPI.transfer(0x00); // MODE register
-    SPI.transfer(0x48); // SM_SDINEW (bit 11) + SM_RESET (bit 2) - enable real-time MIDI mode
-    SPI.transfer(0x04); // Lower byte - additional MIDI flags
-    digitalWrite(VS1053_CS, HIGH);
-    
-    delay(100);
-    
-    // Read back MODE register to verify
-    Serial.println("Reading back MODE register...");
-    digitalWrite(VS1053_CS, LOW);
-    SPI.transfer(0x03); // Read command
-    SPI.transfer(0x00); // MODE register address
-    uint16_t newMode = SPI.transfer(0x00) << 8; // High byte
-    newMode |= SPI.transfer(0x00); // Low byte
-    digitalWrite(VS1053_CS, HIGH);
-    
-    Serial.print("New MODE register value: 0x");
-    Serial.println(newMode, HEX);
-    
-    delay(100);
-    
-    Serial.println("Manual setup complete! Trying MIDI...");
-    
-    // Simple MIDI test - start with basic commands
-    delay(100);
-    
-    // Set volume first
-    sendMIDIDirectly(0xB0, 0x07, 127); // Channel 1 volume to maximum
-    delay(50);
-    
-    // Try different MIDI channels - some might have different default instruments
-    Serial.println("Testing different MIDI channels...");
-    
-    // Try Channel 2 - higher pitched notes
-    Serial.println("Testing Channel 2...");
-    sendMIDIDirectly(0xB1, 0x07, 127); // Channel 2 volume
-    sendMIDIDirectly(0x91, 84, 127); // High C (note 84) - much higher pitch
-    delay(300);
-    sendMIDIDirectly(0x81, 84, 0);   // Note off
-    delay(200);
-    
-    // Try Channel 3 - even higher
-    Serial.println("Testing Channel 3...");
-    sendMIDIDirectly(0xB2, 0x07, 127); // Channel 3 volume
-    sendMIDIDirectly(0x92, 96, 127); // Very high C (note 96)
-    delay(300);
-    sendMIDIDirectly(0x82, 96, 0);   // Note off
-    delay(200);
-    
-    // Try Channel 4
-    Serial.println("Testing Channel 4...");
-    sendMIDIDirectly(0xB3, 0x07, 127); // Channel 4 volume
-    sendMIDIDirectly(0x93, 72, 127); // High note 72
-    delay(300);
-    sendMIDIDirectly(0x83, 72, 0);   // Note off
-    delay(500);
-    
-    // Try a simple note without program change first
-    Serial.println("Testing basic note...");
-    sendMIDIDirectly(0x90, 60, 127); // Note on
-    delay(500);
-    sendMIDIDirectly(0x80, 60, 0); // Note off
-    delay(200);
-    
-    Serial.println("MIDI test sent!");
-  }
+  // Try original working MODE register setting
+  while(!digitalRead(VS1053_DREQ));
+  digitalWrite(VS1053_CS, LOW);
+  SPI.transfer(0x02);
+  SPI.transfer(0x00);
+  SPI.transfer(0x48);
+  SPI.transfer(0x04);
+  digitalWrite(VS1053_CS, HIGH);
   
-  Serial.println("Starting MIDI bell test loop...");
-  delay(1000);
+  delay(100);
+  
+  Serial.println("Back to original setup");
 }
 
 void loop() {
-  Serial.println("=== CORRECTED Wind Chime Test ===");
+  // Wind chime sequence using the working tubular bell sound
   
-  // Now with proper note/velocity order, create a beautiful wind chime sequence
+  // Random-like wind chime notes (pentatonic scale for pleasant harmony)
+  uint8_t chimeNotes[] = {60, 62, 65, 67, 69, 72, 74, 77};  // C, D, F, G, A, C, D, F
+  uint8_t velocities[] = {60, 80, 100, 70, 90, 85, 75, 95}; // Varying volumes
   
-  // First chime - Middle C, moderate volume
-  Serial.println("Playing Middle C (60)");
-  sendMIDIDirectly(0x90, 60, 80);   // Note 60, Velocity 80
-  delay(400);
-  sendMIDIDirectly(0x80, 60, 0);    // Note off
-  delay(200);
+  // Play a gentle wind chime sequence
+  for(int i = 0; i < 5; i++) {
+    int noteIndex = (millis() / 1000 + i * 3) % 8;  // Pseudo-random note selection
+    uint8_t note = chimeNotes[noteIndex];
+    uint8_t velocity = velocities[noteIndex];
+    
+    sendMIDIDirectly(0x90, note, velocity);  // Note on
+    delay(400 + (noteIndex * 100));         // Variable note length
+    sendMIDIDirectly(0x80, note, 0);        // Note off
+    delay(200 + (noteIndex * 50));          // Variable pause
+  }
   
-  // Second chime - Perfect Fifth (G), softer
-  Serial.println("Playing G (67)");
-  sendMIDIDirectly(0x90, 67, 60);   // Note 67, Velocity 60
-  delay(500);
-  sendMIDIDirectly(0x80, 67, 0);    // Note off
-  delay(300);
-  
-  // Third chime - High C, very soft
-  Serial.println("Playing High C (72)");
-  sendMIDIDirectly(0x90, 72, 40);   // Note 72, Velocity 40
-  delay(600);
-  sendMIDIDirectly(0x80, 72, 0);    // Note off
-  delay(400);
-  
-  // Fourth chime - Very high E, whisper soft
-  Serial.println("Playing High E (76)");
-  sendMIDIDirectly(0x90, 76, 30);   // Note 76, Velocity 30
-  delay(800);
-  sendMIDIDirectly(0x80, 76, 0);    // Note off
-  delay(500);
-  
-  Serial.println("=== Beautiful wind chime sequence complete! ===");
-  Serial.println("You should now hear different pitches AND volumes!");
-  delay(4000);
+  // Longer pause between wind chime sequences
+  delay(3000);
 }
 
 void setupMIDI() {
