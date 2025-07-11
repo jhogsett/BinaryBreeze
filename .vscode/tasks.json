@@ -1,0 +1,62 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "PlatformIO: Build",
+			"type": "shell",
+			"command": "pio",
+			"args": [
+				"run"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "PlatformIO: Upload",
+			"type": "shell",
+			"command": "pio",
+			"args": [
+				"run",
+				"--target",
+				"upload"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "PlatformIO: Clean",
+			"type": "shell",
+			"command": "pio",
+			"args": [
+				"run",
+				"--target",
+				"clean"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "PlatformIO: Monitor",
+			"type": "shell",
+			"command": "pio",
+			"args": [
+				"device",
+				"monitor"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$platformio"
+			],
+			"isBackground": true
+		}
+	]
+}
