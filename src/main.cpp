@@ -58,9 +58,12 @@ void noteOff(uint8_t channel, uint8_t note, uint8_t velocity);
 void sendMIDIDirectly(uint8_t cmd, uint8_t data1, uint8_t data2);
 uint16_t readRegister(uint8_t addressbyte);
 void writeRegister(uint8_t addressbyte, uint16_t value);
+void changeInstrument(uint8_t channel, uint8_t instrument);
+void setChannelVolume(uint8_t channel, uint8_t volume);
+void playMelody(uint8_t* notes, uint8_t numNotes, uint8_t notesToPlay, int minDelay, int maxDelay);
 void loadMidiPlugin();
 
-// Send MIDI command with correct parameter order for VS1053
+// Send MIDI command with correct VS1053 packet format
 void sendMIDIDirectly(uint8_t cmd, uint8_t note, uint8_t velocity) {
   // Wait for DREQ
   while(!digitalRead(VS1053_DREQ));
@@ -68,12 +71,18 @@ void sendMIDIDirectly(uint8_t cmd, uint8_t note, uint8_t velocity) {
   // Use XDCS (pin 7) for MIDI data - this is the correct SDI interface
   digitalWrite(VS1053_DCS, LOW);
   
-  // Send MIDI with VS1053's expected parameter order: cmd, velocity, note
+  // Send MIDI in VS1053's required packet format: 0x00, cmd, 0x00, data1, 0x00, data2
+  SPI.transfer(0x00);       // Padding byte
+  while(!digitalRead(VS1053_DREQ)); 
   SPI.transfer(cmd);        // Command: 0x90 = note on, 0x80 = note off
   while(!digitalRead(VS1053_DREQ)); 
-  SPI.transfer(velocity);   // Velocity first (VS1053 specific order)
+  SPI.transfer(0x00);       // Padding byte
   while(!digitalRead(VS1053_DREQ)); 
-  SPI.transfer(note);       // Note second (VS1053 specific order)
+  SPI.transfer(note);       // Note number (standard MIDI order)
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(0x00);       // Padding byte
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(velocity);   // Velocity (standard MIDI order)
   
   digitalWrite(VS1053_DCS, HIGH);
   delay(10);
@@ -142,17 +151,55 @@ void setup() {
 }
 
 void loop() {
-  // Wind Chime Sequence - play a gentle bell melody
-  Serial.println("=== Wind Chime Sequence ===");
+  // Electronic Wind Chime with Sensor-Responsive Music
+  Serial.println("=== Electronic Wind Chime - Multi-Instrument Test ===");
   
-  // Define wind chime notes (pentatonic scale for pleasant sound)
-  uint8_t chimeNotes[] = {60, 62, 64, 67, 69, 72}; // C, D, E, G, A, C (next octave)
-  uint8_t numNotes = sizeof(chimeNotes) / sizeof(chimeNotes[0]);
+  // Define different musical characteristics for different "sensor conditions"
   
-  // Play a gentle wind chime sequence
-  for(int i = 0; i < 5; i++) {  // Play 5 notes
-    uint8_t note = chimeNotes[random(numNotes)];  // Random note from scale
-    uint8_t velocity = 80 + random(40);           // Velocity between 80-120
+  // Scenario 1: Gentle breeze - Tubular Bells, pentatonic scale
+  Serial.println("Scenario 1: Gentle breeze - Tubular Bells");
+  changeInstrument(0, 14);  // Tubular Bells
+  setChannelVolume(0, 90);
+  uint8_t gentleNotes[] = {60, 62, 64, 67, 69, 72}; // C pentatonic
+  playMelody(gentleNotes, 6, 3, 600, 800);
+  
+  delay(2000);
+  
+  // Scenario 2: Medium wind - Marimba, different scale
+  Serial.println("Scenario 2: Medium wind - Marimba");
+  changeInstrument(0, 12);  // Marimba
+  setChannelVolume(0, 110);
+  uint8_t mediumNotes[] = {55, 57, 60, 62, 64, 67}; // Lower, fuller scale
+  playMelody(mediumNotes, 6, 4, 400, 600);
+  
+  delay(2000);
+  
+  // Scenario 3: Strong wind - Vibraphone, chromatic
+  Serial.println("Scenario 3: Strong wind - Vibraphone");
+  changeInstrument(0, 11);  // Vibraphone
+  setChannelVolume(0, 127);
+  uint8_t strongNotes[] = {64, 65, 67, 68, 70, 71, 73, 74}; // Chromatic sequence
+  playMelody(strongNotes, 8, 6, 200, 300);
+  
+  delay(2000);
+  
+  // Scenario 4: Calm - Celesta, sparse notes
+  Serial.println("Scenario 4: Calm - Celesta");
+  changeInstrument(0, 8);   // Celesta
+  setChannelVolume(0, 70);
+  uint8_t calmNotes[] = {72, 76, 79, 84}; // High, sparse notes
+  playMelody(calmNotes, 4, 2, 1200, 1500);
+  
+  delay(3000);
+  
+  Serial.println("Wind chime cycle complete - repeating...");
+}
+
+// Play a melody with specified characteristics
+void playMelody(uint8_t* notes, uint8_t numNotes, uint8_t notesToPlay, int minDelay, int maxDelay) {
+  for(int i = 0; i < notesToPlay; i++) {
+    uint8_t note = notes[random(numNotes)];
+    uint8_t velocity = 70 + random(50);  // Velocity 70-120
     
     Serial.print("Playing note: ");
     Serial.print(note);
@@ -161,14 +208,10 @@ void loop() {
     
     // Play note
     sendMIDIDirectly(0x90, note, velocity);   // Note on
-    delay(800 + random(400));                 // Hold for 0.8-1.2 seconds
+    delay(minDelay + random(maxDelay - minDelay)); // Variable hold time
     sendMIDIDirectly(0x80, note, velocity);   // Note off
-    delay(200 + random(600));                 // Pause 0.2-0.8 seconds before next note
+    delay(100 + random(400));                 // Short pause between notes
   }
-  
-  // Longer pause between wind chime sequences
-  Serial.println("Wind chime sequence complete - waiting...");
-  delay(3000 + random(2000));  // Wait 3-5 seconds before next sequence
 }
 
 void setupMIDI() {
@@ -185,6 +228,47 @@ void noteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
 
 void noteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
   sendMIDIDirectly(0x80 | channel, note, velocity);
+}
+
+// Change MIDI instrument (Program Change)
+void changeInstrument(uint8_t channel, uint8_t instrument) {
+  Serial.print("Changing to instrument: ");
+  Serial.println(instrument);
+  
+  // Program Change with VS1053's packet format (4 bytes total for single-data commands)
+  while(!digitalRead(VS1053_DREQ));
+  
+  digitalWrite(VS1053_DCS, LOW);
+  SPI.transfer(0x00);              // Padding byte
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(0xC0 | channel);    // Program Change command
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(0x00);              // Padding byte
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(instrument);        // Instrument number (0-127)
+  digitalWrite(VS1053_DCS, HIGH);
+  delay(50);  // Give time for instrument change
+}
+
+// Set channel volume
+void setChannelVolume(uint8_t channel, uint8_t volume) {
+  // Control Change: Volume (CC 7) with VS1053's packet format
+  while(!digitalRead(VS1053_DREQ));
+  
+  digitalWrite(VS1053_DCS, LOW);
+  SPI.transfer(0x00);              // Padding byte
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(0xB0 | channel);    // Control Change
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(0x00);              // Padding byte
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(0x07);              // Volume controller (standard MIDI order)
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(0x00);              // Padding byte
+  while(!digitalRead(VS1053_DREQ)); 
+  SPI.transfer(volume);            // Volume value (standard MIDI order)
+  digitalWrite(VS1053_DCS, HIGH);
+  delay(10);
 }
 
 // Read VS1053 register
