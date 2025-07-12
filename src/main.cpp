@@ -300,7 +300,7 @@ void loadMidiPlugin() {
   
   // Load the plugin using the defined size
   int i = 0;
-  while (i < MIDI1003_SIZE) {
+  while (i < MIDI1053_SIZE) {
     unsigned short addr, n, val;
     addr = pgm_read_word_near(&MIDI1053[i++]);
     n = pgm_read_word_near(&MIDI1053[i++]);
