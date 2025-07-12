@@ -66,7 +66,7 @@ void loop() {
   
   // Scenario 1: Gentle breeze - Try different instruments
   Serial.println("Scenario 1: Gentle breeze - Glockenspiel");
-  midi.setInstrument(0, 9);   // Try Glockenspiel instead of Tubular Bells
+  midi.setInstrument(0, GM_Instruments::GLOCKENSPIEL);   // Try Glockenspiel instead of Tubular Bells
   midi.setVolume(0, 90);
   uint8_t gentleNotes[] = {60, 62, 64, 67, 69, 72}; // C pentatonic
   playMelody(gentleNotes, 6, 3, 600, 800);
@@ -75,7 +75,7 @@ void loop() {
   
   // Scenario 2: Medium wind - Marimba
   Serial.println("Scenario 2: Medium wind - Marimba");
-  midi.setInstrument(0, 12);  // Marimba
+  midi.setInstrument(0, GM_Instruments::MARIMBA);  // Marimba
   midi.setVolume(0, 110);
   uint8_t mediumNotes[] = {55, 57, 60, 62, 64, 67}; // Lower, fuller scale
   playMelody(mediumNotes, 6, 4, 400, 600);
@@ -84,7 +84,7 @@ void loop() {
   
   // Scenario 3: Strong wind - Vibraphone
   Serial.println("Scenario 3: Strong wind - Vibraphone");
-  midi.setInstrument(0, 11);  // Vibraphone
+  midi.setInstrument(0, GM_Instruments::VIBRAPHONE);  // Vibraphone
   midi.setVolume(0, 127);
   uint8_t strongNotes[] = {64, 65, 67, 68, 70, 71, 73, 74}; // Chromatic sequence
   playMelody(strongNotes, 8, 6, 200, 300);
@@ -93,7 +93,7 @@ void loop() {
   
   // Scenario 4: Calm - Celesta
   Serial.println("Scenario 4: Calm - Celesta");
-  midi.setInstrument(0, 8);   // Celesta
+  midi.setInstrument(0, GM_Instruments::CELESTA);   // Celesta
   midi.setVolume(0, 70);
   uint8_t calmNotes[] = {72, 76, 79, 84}; // High, sparse notes
   playMelody(calmNotes, 4, 2, 1200, 1500);
