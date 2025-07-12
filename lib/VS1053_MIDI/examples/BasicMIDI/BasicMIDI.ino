@@ -56,25 +56,25 @@ void loop() {
   
   // Piano (GM instrument 0)
   Serial.println("Playing Piano...");
-  midi.setInstrument(0, GM_ACOUSTIC_GRAND_PIANO);
+  midi.setInstrument(0, GM_Instruments::ACOUSTIC_GRAND_PIANO);
   playScale(0);
   delay(1000);
   
   // Organ (GM instrument 16)
   Serial.println("Playing Organ...");
-  midi.setInstrument(0, GM_DRAWBAR_ORGAN);
+  midi.setInstrument(0, GM_Instruments::DRAWBAR_ORGAN);
   playChord(0);
   delay(1000);
   
   // Flute (GM instrument 73)
   Serial.println("Playing Flute...");
-  midi.setInstrument(0, GM_FLUTE);
+  midi.setInstrument(0, GM_Instruments::FLUTE);
   playMelody(0);
   delay(1000);
   
   // Tubular Bells (GM instrument 14)
   Serial.println("Playing Tubular Bells...");
-  midi.setInstrument(0, GM_TUBULAR_BELLS);
+  midi.setInstrument(0, GM_Instruments::TUBULAR_BELLS);
   playBells(0);
   delay(2000);
   

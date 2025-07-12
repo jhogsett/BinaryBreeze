@@ -45,6 +45,9 @@ void setup() {
   // Initialize VS1053 with MIDI plugin
   if (midi.begin(true)) {
     Serial.println("✓ VS1053_MIDI Library initialized successfully!");
+    Serial.print("Plugin size loaded: ");
+    Serial.print(midi.getPluginSize());
+    Serial.println(" words");
   } else {
     Serial.println("✗ Library initialization failed!");
     while(1);

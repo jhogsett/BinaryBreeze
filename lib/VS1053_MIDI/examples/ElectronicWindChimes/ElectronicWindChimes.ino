@@ -49,16 +49,16 @@ struct ChimeScenario {
 };
 
 ChimeScenario scenarios[] = {
-  {GM_TUBULAR_BELLS, 60, 24, 200, 1000, 40, 90, "Tubular Bells"},
-  {GM_MARIMBA, 72, 20, 150, 800, 50, 95, "Marimba"},
-  {GM_VIBRAPHONE, 67, 18, 300, 1200, 35, 80, "Vibraphone"},
-  {GM_CELESTA, 72, 24, 100, 600, 45, 85, "Celesta"}
+  {GM_Instruments::TUBULAR_BELLS, 60, 24, 200, 1000, 40, 90, "Tubular Bells"},
+  {GM_Instruments::MARIMBA, 72, 20, 150, 800, 50, 95, "Marimba"},
+  {GM_Instruments::VIBRAPHONE, 67, 18, 300, 1200, 35, 80, "Vibraphone"},
+  {GM_Instruments::CELESTA, 72, 24, 100, 600, 45, 85, "Celesta"}
 };
 
 const int numScenarios = sizeof(scenarios) / sizeof(scenarios[0]);
 int currentScenario = 0;
 unsigned long lastScenarioChange = 0;
-const unsigned long scenarioInterval = 30000; // Change scenario every 30 seconds
+const unsigned long scenarioInterval = 20000; // Change scenario every 20 seconds (reduced from 30)
 
 void setup() {
   Serial.begin(115200);
@@ -98,12 +98,13 @@ void loop() {
   int windIntensity = getWindIntensity();
   
   // Play chime notes based on wind intensity
-  if (windIntensity > 20) { // Only play if there's enough "wind"
+  if (windIntensity > 15) { // Lowered threshold for more activity
     playChimeNote(windIntensity);
   }
   
   // Variable delay based on wind intensity (more wind = more frequent notes)
-  int delayTime = map(windIntensity, 0, 100, 2000, 200);
+  // Reduced delay range for more responsive chimes
+  int delayTime = map(windIntensity, 0, 100, 1000, 100);
   delay(delayTime);
 }
 
@@ -176,20 +177,20 @@ int getWindIntensity() {
   // If sensor reading is very low (likely no sensor), simulate wind
   if (sensorValue < 10) {
     // Simulate varying wind with some randomness and slow changes
-    static float windLevel = 50.0;
+    static float windLevel = 60.0; // Start with higher base wind level
     static unsigned long lastWindUpdate = 0;
     
     if (millis() - lastWindUpdate > 100) {
       // Slowly varying wind with random gusts
-      windLevel += random(-5, 6) * 0.5;
+      windLevel += random(-3, 4) * 0.8; // More stable variations
       
       // Add occasional gusts
-      if (random(100) < 5) { // 5% chance of gust
-        windLevel += random(10, 30);
+      if (random(100) < 8) { // 8% chance of gust (increased from 5%)
+        windLevel += random(15, 35);
       }
       
-      // Keep wind level in bounds
-      windLevel = constrain(windLevel, 0, 100);
+      // Keep wind level in bounds with a higher minimum
+      windLevel = constrain(windLevel, 25, 100); // Minimum wind of 25
       lastWindUpdate = millis();
     }
     

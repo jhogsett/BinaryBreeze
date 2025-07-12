@@ -121,6 +121,12 @@ public:
      * @return true if ready
      */
     bool isReady();
+    
+    /**
+     * Get the size of the loaded MIDI plugin
+     * @return Number of plugin words
+     */
+    int getPluginSize() { return MIDI_PLUGIN_SIZE; }
 
 private:
     // Pin assignments

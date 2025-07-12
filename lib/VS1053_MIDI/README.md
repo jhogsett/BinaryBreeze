@@ -6,10 +6,22 @@ A comprehensive Arduino library for controlling VS1053/VS1003 audio modules via 
 
 This library provides full MIDI control capabilities for VS1053/VS1003 audio modules, including General MIDI instrument synthesis, note control, and volume management. It was developed through extensive reverse engineering and testing to provide the complete VS1053 MIDI packet format and proper SPI communication protocols.
 
+## 🚀 Major Discovery: Optimal Plugin Selection
+
+**For VS1053 modules:** This library uses the minimal 28-word MIDI plugin by default, which provides **identical audio quality** to the large 1036-word plugin while saving ~2KB of PROGMEM. The VS1053 has built-in General MIDI support (16.5KB RAM) and doesn't need the large plugin originally designed for VS1003 (5.5KB RAM).
+
+**Benefits of minimal plugin:**
+- ✅ **Saves 2KB PROGMEM** (1008 words saved)
+- ✅ **Faster initialization** (28 vs 1036 words to load)
+- ✅ **Identical audio quality** (VS1053 built-in GM synthesis)
+- ✅ **Clean MIT licensing** (official VLSI source)
+- ✅ **More memory for your application**
+
 ## Features
 
 - ✅ **Full General MIDI Support** - All 128 GM instruments with proper plugin loading
 - ✅ **Complete MIDI Control** - Note on/off, instrument changes, volume control
+- ✅ **Optimized Memory Usage** - Smart plugin selection based on chip capabilities
 - ✅ **Proper VS1053 Protocol** - Correct packet formatting with padding bytes
 - ✅ **SPI Interface Management** - Separate command (XCS) and data (XDCS) channel handling
 - ✅ **Hardware Abstraction** - Easy pin configuration for different Arduino boards

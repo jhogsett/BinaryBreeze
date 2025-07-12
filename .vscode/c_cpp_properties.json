@@ -10,10 +10,10 @@
             "includePath": [
                 "C:/DEV/BinaryBreeze/include",
                 "C:/DEV/BinaryBreeze/src",
+                "C:/DEV/BinaryBreeze/lib/VS1053_MIDI",
                 "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                 "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/cores/arduino",
                 "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
-                "C:/DEV/BinaryBreeze/lib/VS1053_MIDI",
                 "C:/DEV/BinaryBreeze/.pio/libdeps/nanoatmega328/ESP_VS1053_Library/src",
                 "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                 "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/libraries/HID/src",
@@ -26,10 +26,10 @@
                 "path": [
                     "C:/DEV/BinaryBreeze/include",
                     "C:/DEV/BinaryBreeze/src",
+                    "C:/DEV/BinaryBreeze/lib/VS1053_MIDI",
                     "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                     "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/cores/arduino",
                     "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
-                    "C:/DEV/BinaryBreeze/lib/VS1053_MIDI",
                     "C:/DEV/BinaryBreeze/.pio/libdeps/nanoatmega328/ESP_VS1053_Library/src",
                     "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                     "C:/Users/jhogs/.platformio/packages/framework-arduino-avr/libraries/HID/src",

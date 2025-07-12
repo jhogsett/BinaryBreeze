@@ -9,6 +9,11 @@
 - I have sensors for light, sound, temperature, humidity, pressure and vibration/acceleration 
 - The ultimate device would be housed in a weather-safe enclosure and hung from the roof awning like other wind chimes, with 5V power delivered to it.
 
+#### Major Technical Breakthrough: VS1003 vs VS1053 MIDI Discovery
+**Key Finding:** The large ~1036-word MIDI plugin (rtmidi1053b) was designed for the VS1003 chip which only has 5.5KB of RAM. The VS1053 has 16.5KB RAM (3x more) and built-in General MIDI support, making the minimal 28-word plugin (rtmidistart) sufficient for full functionality.
+
+**Impact:** This discovery means VS1053 projects can use the tiny plugin and save significant PROGMEM space while achieving identical audio quality. The VS1053_MIDI library now supports both plugins with conditional compilation for compatibility.
+
 #### Open Questions & Design Considerations (TBD)
 
 **Musical Scale Theory:**
