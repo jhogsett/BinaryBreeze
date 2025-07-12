@@ -1,3 +1,59 @@
+### More About This Project
+
+#### Core Vision
+- It would be nice to have a set of musical scales, ranging from "super duper cheery" to "awfully darn dreadful"
+- The sensors will be used to collect environmental information (light, temperature, humidity, pressure, vibration)
+- The environmental information will guide which musical scale is chosen, for instance beautiful calm sunny weather should be _cheery_ and cold nasty weather should be _dreadful_.
+- The environmental information will also be used to choose which instrument is used, and other musical characteristics that are easily variable to "radiate information about the environment" to the listener through ambient listening.
+- It would be nice to use some known algorithms for predicting coming bad weather, such as a sudden pressure drop, and signal the coming bad weather by starting to sound _gloomy_
+- I have sensors for light, sound, temperature, humidity, pressure and vibration/acceleration 
+- The ultimate device would be housed in a weather-safe enclosure and hung from the roof awning like other wind chimes, with 5V power delivered to it.
+
+#### Open Questions & Design Considerations (TBD)
+
+**Musical Scale Theory:**
+- What specific scales should represent the "super duper cheery" to "awfully darn dreadful" spectrum?
+  - Major scales (cheery) → Minor scales (dreadful)?
+  - Pentatonic, blues, or exotic modal scales for variety?
+  - Microtonal or non-Western scales for unique moods?
+  - How many distinct mood categories should we support?
+
+**Environmental → Musical Mapping:**
+- What are the optimal sensor → musical parameter relationships?
+  - Temperature → pitch range, scale selection, or instrument choice?
+  - Humidity → reverb effects, note sustain, or harmonic content?
+  - Pressure → tempo, note frequency, or overall activity level?
+  - Light level → instrument timbre, brightness, or day/night modes?
+  - Should mappings be linear, logarithmic, or use more complex curves?
+
+**Weather Prediction Algorithms:**
+- Which meteorological algorithms should we implement for weather forecasting?
+  - Barometric pressure trend analysis (sudden drops = storms)?
+  - Temperature/humidity/pressure combinations for different weather patterns?
+  - How far in advance should the system predict weather changes?
+  - What "gloomy" musical characteristics best represent approaching bad weather?
+
+**Physical Installation & Hardware:**
+- What type of weather-safe enclosure design would work best?
+- How should 5V power be delivered safely to an outdoor installation?
+- Should the speaker be internal or external to the enclosure?
+- What mounting system would work with roof awning installation?
+- How can we ensure good sensor exposure while protecting electronics?
+
+**Advanced Features & Behaviors:**
+- Should the system have seasonal behavior variations?
+- How should time-of-day influence musical choices?
+- Would remote monitoring/configuration be valuable?
+- Should there be manual override or preset mood modes?
+- How can we balance realistic wind chime physics with environmental responsiveness?
+
+**User Experience:**
+- How "ambient" should the listening experience be?
+- Should there be visual indicators of current environmental conditions?
+- How can we ensure the system doesn't become annoying with repetitive patterns?
+- Should neighbors be able to hear and enjoy it, or keep it personal?
+
+
 # VS1053 Electronic Wind Chime Project - Progress Summary
 
 ## Project Overview

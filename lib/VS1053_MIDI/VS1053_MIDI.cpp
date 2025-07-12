@@ -7,8 +7,12 @@
 
 #include "VS1053_MIDI.h"
 
-// MIDI plugin data extracted from pschatzmann/arduino-vs1053 library
-// This enables full General MIDI synthesis capabilities
+// MIDI plugin data in RLE compressed format for Arduino memory efficiency
+// Original data from VLSI Solutions rtmidi1053b.c (atab[1020] + dtab[1020])
+// This is the FULL General MIDI plugin (~1036 words) with complete instrument wavetables
+// vs. the minimal rtmidistart.plg (28 words) which only enables basic MIDI mode
+// Compressed by Arduino community (pschatzmann, baldram, etc.) to save PROGMEM
+// This enables full General MIDI synthesis capabilities via DSP firmware
 const unsigned short VS1053_MIDI::MIDI_PLUGIN[] PROGMEM = {
     0x0007,0x0001, /*copy 1*/
     0x8050,
